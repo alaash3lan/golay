@@ -5,15 +5,14 @@ import (
 	"os"
 
 	userDependency "golay/internal/domain/user/dependency"
-	"golay/internal/domain/user/model"
 	"golay/internal/routes"
+	"golay/migrations"
 
 	// userService "golay/internal/service/user"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"github.com/joho/godotenv"
-
 )
 
 func main() {
@@ -26,27 +25,23 @@ func main() {
 	}
 
 	// Migrate the schema
-	if err := db.AutoMigrate(&model.User{}); err != nil {
-		log.Fatalf("Failed to migrate database schema: %v", err)
-	}
-
+	migrations.RunMigrations(db)
 	router := gin.Default()
 
 	userHandler, err := userDependency.SetupUserDependencies(db)
-    if err != nil {
-       panic(err)
-    }
+	if err != nil {
+		panic(err)
+	}
 
-    // Setup user routes
-    routes.SetupUserRoutes(router, userHandler)
+	// Setup user routes
+	routes.SetupUserRoutes(router, userHandler)
 
-    // Run the server
-
+	// Run the server
 
 	err = godotenv.Load()
 	if err != nil {
-	  log.Fatal("Error loading .env file")
-	}	// Start the server
+		log.Fatal("Error loading .env file")
+	} // Start the server
 	if err := router.Run(":" + os.Getenv("PORT")); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}

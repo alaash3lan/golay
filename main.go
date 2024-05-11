@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	userDependency "golay/internal/domain/user/dependency"
 	"golay/internal/domain/user/model"
@@ -11,9 +12,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"github.com/joho/godotenv"
+
 )
 
 func main() {
+
 	// Set up the database connection
 	dsn := "root:alaa@tcp(127.0.0.1:3306)/golay?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
@@ -26,14 +30,6 @@ func main() {
 		log.Fatalf("Failed to migrate database schema: %v", err)
 	}
 
-
-	// Set up the repository
-	// repo := user.NewGORMUserRepository(db)
-
-	// // Set up the service
-	// service := userService.NewUserService(repo)
-
-	// // Set up the router
 	router := gin.Default()
 
 	userHandler, err := userDependency.SetupUserDependencies(db)
@@ -45,12 +41,13 @@ func main() {
     routes.SetupUserRoutes(router, userHandler)
 
     // Run the server
-    router.Run(":8080")
-	routes.SetupUserRoutes(router, userHandler)
 
 
-	// Start the server
-	if err := router.Run(":8000"); err != nil {
+	err = godotenv.Load()
+	if err != nil {
+	  log.Fatal("Error loading .env file")
+	}	// Start the server
+	if err := router.Run(":" + os.Getenv("PORT")); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }

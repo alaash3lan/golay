@@ -7,6 +7,7 @@ import (
 	"golay/internal/domain/user/model"
 
 	"gorm.io/gorm"
+	"golay/internal/utils"
 )
 
 // UserRepository is an interface that defines the operations a user repository should implement.
@@ -31,8 +32,13 @@ func NewGORMUserRepository(db *gorm.DB) *GORMUserRepository {
 // CreateUser creates a new user.
 func (r *GORMUserRepository) CreateUser(user *model.User) error {
 
-	panic("here")
-
+	
+	pass,err := utils.HashPassword(user.Password)
+	if err != nil {
+		return err
+	}
+	user.Password = pass
+	r.db.Create(user)
 	return nil
 }
 

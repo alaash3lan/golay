@@ -3,6 +3,7 @@ package handler
 import (
 	"golay/internal/domain/user/model"
 	"golay/internal/domain/user/service"
+	"golay/internal/domain/user/validators"
 	"golay/internal/utils"
 	"net/http"
 	"strconv"
@@ -22,13 +23,26 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 
 // CreateUser handles the creation of a new user.
 func (h *UserHandler) CreateUser(c *gin.Context) {
-	var newUser model.User
-	if err := c.ShouldBindJSON(&newUser); err != nil {
+
+	
+	// var newUser model.User
+	var request validators.CreateUserRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := h.service.CreateUser(&newUser); err != nil {
+		// Validate the request
+		validationErrors := request.Validate()
+		if validationErrors != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
+			return
+		}
+	
+
+	newUser := request.ToUserModel()
+
+	if err := h.service.CreateUser(newUser); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

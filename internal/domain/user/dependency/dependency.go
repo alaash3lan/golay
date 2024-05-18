@@ -9,7 +9,7 @@ import (
 )
 
 func SetupUserDependencies(db *gorm.DB) (*handler.UserHandler, error) {
-	userRepo := repository.NewGORMUserRepository(db)
+	userRepo := repository.NewUserRepository(db)
 
 	userService := service.NewUserService(userRepo)
 

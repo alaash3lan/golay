@@ -24,8 +24,8 @@ type GORMUserRepository struct {
 	db *gorm.DB
 }
 
-// NewGORMUserRepository creates a new GORMUserRepository instance.
-func NewGORMUserRepository(db *gorm.DB) *GORMUserRepository {
+// NewUserRepository creates a new GORMUserRepository instance.
+func NewUserRepository(db *gorm.DB) *GORMUserRepository {
 	return &GORMUserRepository{db: db}
 }
 
